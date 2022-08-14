@@ -1,6 +1,6 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "./data-source";
 import { Routes } from "./routes";
 
@@ -36,11 +36,15 @@ AppDataSource.initialize()
     // setup express app here
     // ...
 
+    app.get("/", (request: Request, response: Response, next: NextFunction) => {
+      response.send({
+        message: "success",
+      });
+    });
+
     // start express server
     app.listen(3000);
 
-    console.log(
-      "Express server has started on port 3000. Open http://localhost:3000/users to see results"
-    );
+    console.log("Express server has started on port 3000.");
   })
   .catch((error) => console.log(error));
