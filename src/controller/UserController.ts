@@ -50,7 +50,7 @@ export class UserController {
       };
     }
 
-    const token = jwt.sign({ ...user, password: "" });
+    const token = jwt.sign({ ...user, password: "" }, JWT_SECRET);
     user.accessToken = token;
     const [, userWithTokenError] = await trycatch(
       this.userRepository.save(user)
@@ -86,7 +86,7 @@ export class UserController {
       };
     }
 
-    const token = jwt.sign({ ...user, password: "" });
+    const token = jwt.sign({ ...user, password: "" }, JWT_SECRET);
     user.accessToken = token;
     const [, userWithTokenError] = await trycatch(
       this.userRepository.save(user)
@@ -123,7 +123,9 @@ var bcrypt = {
 };
 
 var jwt = {
-  sign(user: User) {
+  sign(user: User, secret) {
     return JSON.stringify(user);
   },
 };
+
+var JWT_SECRET = "";

@@ -15,7 +15,7 @@ export const Routes = [
   },
   {
     method: "post",
-    route: "/users",
+    route: "/signup",
     controller: UserController,
     action: "save",
   },
