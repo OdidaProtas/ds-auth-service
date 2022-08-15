@@ -10,7 +10,7 @@ export default function (
   if (!Boolean(accessToken)) {
     response.status = 403;
 
-    response.sendStatus({
+    response.send({
       message: "Please provide a valid access token",
     });
   } else {
@@ -19,7 +19,7 @@ export default function (
     if (!Boolean(token)) {
       response.status = 403;
 
-      response.sendStatus({
+      response.send({
         message: "Please provide a valid access token",
       });
     } else {
@@ -29,7 +29,7 @@ export default function (
       } else {
         response.status = 403;
 
-        response.sendStatus({
+        response.send({
           message: "Invalid access token",
         });
       }
