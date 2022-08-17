@@ -31,4 +31,10 @@ export const Routes = [
     controller: UserController,
     action: "generateToken",
   },
+  {
+    method: "post",
+    route: "/verify/:id",
+    controller: UserController,
+    action: "verificationCode",
+  },
 ];

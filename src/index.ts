@@ -4,13 +4,18 @@ import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "./data-source";
 import { Routes } from "./routes";
 import verifyToken from "./middleware/verifyToken";
+import * as cors from "cors";
+import "dotenv/config";
+import mailer from "./middleware/mailer";
 
 AppDataSource.initialize()
   .then(async () => {
     // create express app
     const app = express();
     app.use(bodyParser.json());
-    app.use(verifyToken);
+    // app.use(verifyToken);
+    app.use(mailer);
+    app.use(cors("*"));
 
     // register express routes from defined application routes
     Routes.forEach((route) => {
@@ -44,9 +49,11 @@ AppDataSource.initialize()
       });
     });
 
-    // start express server
-    app.listen(3000);
+    const PORT = process.env.PORT;
 
-    console.log("Express server has started on port 3000.");
+    // start express server
+    app.listen(PORT);
+
+    console.log("Server has started on port " + PORT);
   })
   .catch((error) => console.log(error));

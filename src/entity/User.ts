@@ -2,8 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column()
   firstName: string;
@@ -23,4 +23,14 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({
+    default: false,
+  })
+  emailVerified: boolean;
+
+  @Column({
+    nullable: true,
+  })
+  verificationCode: number;
 }
