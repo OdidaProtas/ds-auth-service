@@ -15,7 +15,7 @@ AppDataSource.initialize()
     app.use(bodyParser.json());
     // app.use(verifyToken);
     app.use(mailer);
-    app.use(cors("*"));
+    app.use(cors());
 
     // register express routes from defined application routes
     Routes.forEach((route) => {

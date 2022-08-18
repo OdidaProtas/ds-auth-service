@@ -32,5 +32,10 @@ export class User {
   @Column({
     nullable: true,
   })
-  verificationCode: number;
+  verificationCode: string;
+
+  @Column({
+    default: Date.now(),
+  })
+  dateCreated: string;
 }

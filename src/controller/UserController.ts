@@ -32,7 +32,7 @@ export class UserController {
     const userPassword = request.body.password;
 
     if (!Boolean(userEmail) || !Boolean(userPassword)) {
-      response.status = 403;
+      response.status(403);
       return {
         message: "Email and password required for authentication",
       };
@@ -43,7 +43,7 @@ export class UserController {
     );
 
     if (!Boolean(user) || userErr) {
-      response.status = 403;
+      response.status(403);
       return {
         message: "Invalid user email submitted",
       };
@@ -52,21 +52,24 @@ export class UserController {
     const isValid = bcrypt.compareSync(userPassword, user.password);
 
     if (!isValid) {
-      response.status = 403;
+      response.status(403);
       return {
         message: "Invalid password",
         userPassword,
       };
     }
 
-    const token = jwt.sign({ ...user, password: "" }, JWT_SECRET);
+    const token = jwt.sign(
+      { ...user, password: "", accessToken: "" },
+      JWT_SECRET
+    );
     user.accessToken = token;
     const [, userWithTokenError] = await trycatch(
       this.userRepository.save(user)
     );
 
     if (userWithTokenError) {
-      response.status = 401;
+      response.status(401);
       return {
         message: "Could not sign up user",
       };
@@ -80,7 +83,7 @@ export class UserController {
   async save(request: Request, response: Response, next: NextFunction) {
     const rawPassword = request.body.password;
     if (!Boolean(rawPassword)) {
-      response.status = 401;
+      response.status(401);
       return {
         message: "A valid password is required for signup",
       };
@@ -90,7 +93,7 @@ export class UserController {
     request.body.password = hashedPassword;
     const [user, err] = await trycatch(this.userRepository.save(request.body));
     if (err) {
-      response.status = 401;
+      response.status(401);
       return {
         message: "Could not sign up user",
         desc: err,
@@ -107,21 +110,22 @@ export class UserController {
     );
 
     if (userWithCodeError) {
-      response.status = 401;
+      response.status(400);
       return {
         err: "An error occured during signup",
       };
     }
 
     transporter.sendMail({
-      from: '"DREAMERCODES School" <dreamercodes.school@gmail.com>', // sender address
+      from: '"DREAMERCODES SCHOOL" <dreamercodes.school@gmail.com>', // sender address
       to: user.email, // list of receivers
-      subject: "Verification code ✔", // Subject line
+      subject: "Verification code", // Subject line
       text: `Your verification code is ${verificationCode}`, // plain text body
       html: `
       <div>
         <p>Your verification code is ${verificationCode}</p>
         <small>If you didn't sign up on dreamercodes, please ignore this email</small>
+        </br>
         <b>Do not share this email.</b>
       </div>
       `, // html body
@@ -132,6 +136,8 @@ export class UserController {
         ...user,
         password: "******",
         verificationCode: "******",
+        confirmPassword: "*******",
+        accessToken: "******",
       },
       JWT_SECRET
     );
@@ -141,7 +147,7 @@ export class UserController {
     );
 
     if (userWithTokenError) {
-      response.status = 401;
+      response.status(401);
       return {
         err: "An error occured during registration",
       };
@@ -165,7 +171,7 @@ export class UserController {
     );
 
     if (!Boolean(user.verificationCode || userError)) {
-      response.status = 403;
+      response.status(401);
 
       return {
         error: "Could not verify user.",
@@ -175,7 +181,7 @@ export class UserController {
     const isValid = bcrypt.compareSync(verificationCode, user.verificationCode);
 
     if (!isValid) {
-      response.status = 403;
+      response.status(400);
 
       return {
         error: "Could not verify user.",
@@ -187,7 +193,7 @@ export class UserController {
     );
 
     if (verifiedUserError) {
-      response.status = 403;
+      response.status(403);
 
       return {
         error: "Could not verify user.",
@@ -206,7 +212,7 @@ export class UserController {
     );
 
     if (userWithTokenError) {
-      response.status = 403;
+      response.status(403);
 
       return {
         error: "Could not verify user.",
@@ -217,8 +223,6 @@ export class UserController {
       accessToken: newToken,
     };
   }
-
-  
 
   async remove(request: Request, response: Response, next: NextFunction) {
     let userToRemove = await this.userRepository.findOneBy({
