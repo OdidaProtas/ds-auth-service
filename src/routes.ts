@@ -39,12 +39,12 @@ export const Routes = [
   },
   {
     method: "post",
-    route: "request-reset",
+    route: "/request-reset",
     controller: UserController,
     action: "requestReset",
   },
   {
-    method: "post",
+    method: "/post",
     route: "reset-password",
     controller: UserController,
     action: "resetPassword",
