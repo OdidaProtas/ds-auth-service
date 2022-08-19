@@ -101,7 +101,6 @@ export class UserController {
       };
     }
 
-    
     const verificationCode = generateVerificationCode();
 
     const hashedCode = bcrypt.hashSync(verificationCode, 8);
@@ -117,7 +116,9 @@ export class UserController {
       };
     }
 
-    request["mailer"].sendMail(createVerificationMail(verificationCode, user.email));
+    request["mailer"].sendMail(
+      createVerificationMail(verificationCode, user.email)
+    );
 
     const token = jwt.sign(
       {
@@ -154,13 +155,11 @@ export class UserController {
     const userID = request.params.id;
     const verificationCode = request.body.verificationCode;
 
-    const [user, userError] = await trycatch(
-      this.userRepository.find(userID)
-    );
+    const [user, userError] = await trycatch(this.userRepository.find(userID));
 
-    console.table(user)
+    console.table(user);
 
-    if (!Boolean(user?.verificationCode || userError)) {
+    if (Boolean(userError)) {
       response.status(401);
 
       return {
@@ -168,7 +167,7 @@ export class UserController {
       };
     }
 
-    const isValid = bcrypt.compareSync(verificationCode, user?.verificationCode);
+    const isValid = bcrypt.compareSync(verificationCode, user.verificationCode);
 
     if (!isValid) {
       response.status(400);
