@@ -11,6 +11,7 @@ import "dotenv/config";
 import generateVerificationCode from "../util/verificationCode";
 import createVerificationMail from "../util/createVerificationMail";
 import createResetEmail from "../util/createResetEmail";
+import createPasswordResetSuccessEmail from "../util/createPasswordResetSuccessEmail";
 
 const JWT_SECRET = process.env.DREAMER_CODES_API_JWT_SECRET;
 
@@ -314,6 +315,8 @@ export class UserController {
         msg: "Password reset request unsuccessful",
       };
     }
+
+    request["mailer"].sendMail(createPasswordResetSuccessEmail(user.email));
 
     return {
       msg: "Password has been reset",
