@@ -44,8 +44,8 @@ export const Routes = [
     action: "requestReset",
   },
   {
-    method: "/post",
-    route: "reset-password",
+    method: "post",
+    route: "/reset-password",
     controller: UserController,
     action: "resetPassword",
   },
