@@ -159,7 +159,6 @@ export class UserController {
       this.userRepository.findOneBy({ id: userID })
     );
 
-    console.log(user, user.verificationCode);
 
     if (Boolean(userError) || !Boolean(user?.verificationCode)) {
       response.status(401);
@@ -179,8 +178,9 @@ export class UserController {
       };
     }
 
+    user.emailVerified = true;
     const [verifiedUser, verifiedUserError] = await trycatch(
-      this.userRepository.save({ ...user, emailVerified: true })
+      this.userRepository.save(user)
     );
 
     if (verifiedUserError) {
@@ -191,15 +191,19 @@ export class UserController {
       };
     }
 
-    const newToken = jwt.sign({
-      ...user,
-      password: "******",
-      verificationCode: "******",
-      accessToken: "******",
-    });
+    const newToken = jwt.sign(
+      {
+        ...user,
+        password: "******",
+        verificationCode: "******",
+        accessToken: "******",
+      },
+      JWT_SECRET
+    );
 
+    verifiedUser.accessToken = newToken;
     const [userWithToken, userWithTokenError] = await trycatch(
-      this.userRepository.save({ ...verifiedUser, acessToken: newToken })
+      this.userRepository.save(verifiedUser)
     );
 
     if (userWithTokenError) {
