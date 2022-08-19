@@ -10,6 +10,7 @@ import * as bcrypt from "bcrypt";
 import "dotenv/config";
 import generateVerificationCode from "../util/verificationCode";
 import createVerificationMail from "../util/createVerificationMail";
+import createResetEmail from "../util/createResetEmail";
 
 const JWT_SECRET = process.env.DREAMER_CODES_API_JWT_SECRET;
 
@@ -159,7 +160,6 @@ export class UserController {
       this.userRepository.findOneBy({ id: userID })
     );
 
-
     if (Boolean(userError) || !Boolean(user?.verificationCode)) {
       response.status(401);
 
@@ -224,5 +224,98 @@ export class UserController {
       id: request.params.id,
     });
     await this.userRepository.remove(userToRemove);
+  }
+
+  async requestReset(request: Request, response: Response, next: NextFunction) {
+    const email = request.body.email;
+
+    const [user, userError] = await trycatch(
+      this.userRepository.findOneBy({ email })
+    );
+
+    if (!Boolean(user) || userError) {
+      response.status(403);
+      return {
+        msg: "Requested user not found!",
+        desc: userError,
+      };
+    }
+
+    const verificationCode = generateVerificationCode();
+
+    request["mailer"].sendMail(createResetEmail(verificationCode, user.email));
+
+    const hashedCode = bcrypt.hashSync(verificationCode, 8);
+
+    user.verificationCode = hashedCode;
+    user.resetRequested = true;
+    const [, userWithCodeError] = await this.userRepository.save(user);
+
+    if (userWithCodeError) {
+      response.status(403);
+      return {
+        msg: "An error occured",
+        desc: userWithCodeError,
+      };
+    }
+
+    return {
+      msg: "Reset request successful",
+    };
+  }
+
+  async resetPassword(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    const email = request.body.email;
+    const verificationCode = request.body.verificationCode;
+    const newPassword = request.body.password;
+
+    const [user, userErr] = await trycatch(
+      this.userRepository.findOneBy({ email })
+    );
+
+    if (userErr || !Boolean(user)) {
+      response.status(403);
+      return {
+        msg: "User not found",
+        desc: userErr,
+      };
+    }
+
+    const hasRequested = user.resetRequested;
+
+    if (!hasRequested) {
+      response.status(403);
+      return {
+        msg: "User hasn't requested password reset",
+      };
+    }
+
+    const isValid = bcrypt.compareSync(verificationCode, user.verificationCode);
+
+    if (!isValid) {
+      response.status(403);
+      return {
+        msg: "Invalid verification code submitted",
+      };
+    }
+
+    const password = bcrypt.hashSync(newPassword, 8);
+    user.password = password;
+    const [, updatedUserError] = await trycatch(this.userRepository.save(user));
+
+    if (updatedUserError) {
+      response.status(403);
+      return {
+        msg: "Password reset request unsuccessful",
+      };
+    }
+
+    return {
+      msg: "Password has been reset",
+    };
   }
 }

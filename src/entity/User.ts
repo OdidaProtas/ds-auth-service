@@ -35,6 +35,11 @@ export class User {
   verificationCode: string;
 
   @Column({
+    default: false,
+  })
+  resetRequested: boolean;
+
+  @Column({
     default: Date.now(),
   })
   dateCreated: string;

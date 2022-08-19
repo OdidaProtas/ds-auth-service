@@ -37,4 +37,16 @@ export const Routes = [
     controller: UserController,
     action: "verificationCode",
   },
+  {
+    method: "post",
+    route: "request-reset",
+    controller: UserController,
+    action: "requestReset",
+  },
+  {
+    method: "post",
+    route: "reset-password",
+    controller: UserController,
+    action: "resetPassword",
+  },
 ];
