@@ -155,11 +155,13 @@ export class UserController {
     const userID = request.params.id;
     const verificationCode = request.body.verificationCode;
 
-    const [user, userError] = await trycatch(this.userRepository.find(userID));
+    const [user, userError] = await trycatch(
+      this.userRepository.findOneBy({ id: userID })
+    );
 
-    console.table(user);
+    console.log(user, user.verificationCode);
 
-    if (Boolean(userError)) {
+    if (Boolean(userError) || !Boolean(user?.verificationCode)) {
       response.status(401);
 
       return {
