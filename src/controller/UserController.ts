@@ -155,10 +155,12 @@ export class UserController {
     const verificationCode = request.body.verificationCode;
 
     const [user, userError] = await trycatch(
-      this.userRepository.findOneBy({ id: userID })
+      this.userRepository.find(userID)
     );
 
-    if (!Boolean(user.verificationCode || userError)) {
+    console.table(user)
+
+    if (!Boolean(user?.verificationCode || userError)) {
       response.status(401);
 
       return {
@@ -166,7 +168,7 @@ export class UserController {
       };
     }
 
-    const isValid = bcrypt.compareSync(verificationCode, user.verificationCode);
+    const isValid = bcrypt.compareSync(verificationCode, user?.verificationCode);
 
     if (!isValid) {
       response.status(400);
