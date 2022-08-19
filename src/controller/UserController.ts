@@ -305,6 +305,7 @@ export class UserController {
 
     const password = bcrypt.hashSync(newPassword, 8);
     user.password = password;
+    user.resetRequested = false;
     const [, updatedUserError] = await trycatch(this.userRepository.save(user));
 
     if (updatedUserError) {
