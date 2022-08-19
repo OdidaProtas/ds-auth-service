@@ -15,7 +15,7 @@ export default function (
     },
   });
 
-  request["mailTransporter"] = transporter;
+  request["mailer"] = transporter;
 
   next();
 }

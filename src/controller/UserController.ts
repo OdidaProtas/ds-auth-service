@@ -9,6 +9,7 @@ import * as bcrypt from "bcrypt";
 
 import "dotenv/config";
 import generateVerificationCode from "../util/verificationCode";
+import createVerificationMail from "../util/createVerificationMail";
 
 const JWT_SECRET = process.env.DREAMER_CODES_API_JWT_SECRET;
 
@@ -100,13 +101,13 @@ export class UserController {
       };
     }
 
-    const transporter = request["mailTransporter"];
+    
     const verificationCode = generateVerificationCode();
 
     const hashedCode = bcrypt.hashSync(verificationCode, 8);
-
+    user.verificationCode = hashedCode;
     const [userWithCode, userWithCodeError] = await trycatch(
-      this.userRepository.save({ ...user, verificationCode: hashedCode })
+      this.userRepository.save(user)
     );
 
     if (userWithCodeError) {
@@ -116,20 +117,7 @@ export class UserController {
       };
     }
 
-    transporter.sendMail({
-      from: '"DREAMERCODES SCHOOL" <dreamercodes.school@gmail.com>', // sender address
-      to: user.email, // list of receivers
-      subject: "Verification code", // Subject line
-      text: `Your verification code is ${verificationCode}`, // plain text body
-      html: `
-      <div>
-        <p>Your verification code is ${verificationCode}</p>
-        <small>If you didn't sign up on dreamercodes, please ignore this email</small>
-        </br>
-        <b>Do not share this email.</b>
-      </div>
-      `, // html body
-    });
+    request["mailer"].sendMail(createVerificationMail(verificationCode, user.email));
 
     const token = jwt.sign(
       {
