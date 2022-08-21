@@ -49,4 +49,10 @@ export const Routes = [
     controller: UserController,
     action: "resetPassword",
   },
+  {
+    method: "get",
+    route: "/resend-code/:email",
+    controller: UserController,
+    action: "resendCode",
+  },
 ];

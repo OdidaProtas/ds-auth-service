@@ -322,4 +322,49 @@ export class UserController {
       msg: "Password has been reset",
     };
   }
+
+  async resendCode(request: Request, response: Response, next: NextFunction) {
+    const email = request.params.email;
+    if (!Boolean(email)) {
+      response.status(403);
+      return {
+        msg: "Email address error",
+        desc: "User not foud",
+      };
+    }
+
+    const [user, userError] = await trycatch(
+      this.userRepository.findOneBy({ email })
+    );
+
+    if (!Boolean(user) || Boolean(userError)) {
+      response.status(403);
+      return {
+        msg: "Email address error",
+        desc: "User not foud",
+      };
+    }
+
+    const verificationCode = generateVerificationCode();
+    const hashedCode = bcrypt.hashSync(verificationCode, 8);
+    request["mailer"].sendMail(createVerificationMail(verificationCode, email));
+
+    user.verificationCode = hashedCode;
+
+    const [, userWithCodeError] = await trycatch(
+      this.userRepository.save(user)
+    );
+
+    if (userWithCodeError) {
+      response.status(403);
+      return {
+        msg: "Error",
+        desc: userWithCodeError,
+      };
+    }
+
+    return {
+      msg: "Verification code resent!",
+    };
+  }
 }
