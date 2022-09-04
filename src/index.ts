@@ -3,7 +3,6 @@ import * as bodyParser from "body-parser";
 import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "./data-source";
 import { Routes } from "./routes";
-import verifyToken from "./middleware/verifyToken";
 import * as cors from "cors";
 import "dotenv/config";
 import mailer from "./middleware/mailer";
@@ -13,7 +12,6 @@ AppDataSource.initialize()
     // create express app
     const app = express();
     app.use(bodyParser.json());
-    // app.use(verifyToken);
     app.use(mailer);
     app.use(cors());
 
