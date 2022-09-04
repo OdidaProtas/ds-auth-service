@@ -55,4 +55,10 @@ export const Routes = [
     controller: UserController,
     action: "resendCode",
   },
+  {
+    method:"get",
+    route:"/verify-access-token",
+    controller:UserController,
+    action:"verifyAccessToken"
+  }
 ];

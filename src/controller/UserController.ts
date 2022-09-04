@@ -37,7 +37,8 @@ export class UserController {
     if (!Boolean(userEmail) || !Boolean(userPassword)) {
       response.status(403);
       return {
-        message: "Email and password required for authentication",
+        msg: "Authentication failed",
+        desc: "Email and password required for authentication",
       };
     }
 
@@ -46,9 +47,10 @@ export class UserController {
     );
 
     if (!Boolean(user) || userErr) {
-      response.status(403);
+      response.status(404);
       return {
-        message: "Invalid user email submitted",
+        msg: "Authentication failed",
+        desc: userErr ?? "User account not found",
       };
     }
 
@@ -57,8 +59,8 @@ export class UserController {
     if (!isValid) {
       response.status(403);
       return {
-        message: "Invalid password",
-        userPassword,
+        msg: "User authentication failed",
+        desc: "Password is incorrect",
       };
     }
 
@@ -366,5 +368,81 @@ export class UserController {
     return {
       msg: "Verification code resent!",
     };
+  }
+
+  async verifyAccessToken(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    const accessToken: string = request.headers.access_token;
+    if (!Boolean(accessToken)) {
+      response.status(403);
+      return {
+        msg: "Failed to authenticate user",
+        desc: "Request missing access token",
+      };
+    }
+
+    const correctFormat = accessToken.startsWith("Bearer");
+    if (!correctFormat) {
+      response.status(403);
+      return {
+        msg: "Failed to authenticate user",
+        desc: "Invalid access token provided",
+      };
+    }
+
+    const token = accessToken.split(" ")[1];
+
+    if (!Boolean(token)) {
+      response.status(403);
+      return {
+        msg: "Failed to authenticate user",
+        desc: "Invalid access token provided",
+      };
+    }
+
+    try {
+      const decodedUser = jwt.decode(token);
+
+      const [user, userError] = await trycatch(
+        this.userRepository.findOne(decodedUser.id)
+      );
+
+      if (!Boolean(user) || userError) {
+        response.status(404);
+        return {
+          msg: "An error occuered",
+          desc: userError ?? "User not found",
+        };
+      }
+
+      const isSavedToken = user.accessToken === token;
+
+      if (!isSavedToken) {
+        response.status(403);
+        return {
+          msg: "Authentication failed",
+          desc: "Access token provided is invalid or expired",
+        };
+      }
+
+      return {
+        user: {
+          ...user,
+          accessToken: "******",
+          password: "******",
+          verificationCode: "******",
+          resetRequested: "*****",
+        },
+      };
+    } catch (e) {
+      response.status(500);
+      return {
+        msg: "An error occured",
+        desc: e,
+      };
+    }
   }
 }
