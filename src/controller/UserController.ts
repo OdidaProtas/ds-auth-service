@@ -407,7 +407,7 @@ export class UserController {
       const decodedUser = jwt.decode(token);
 
       const [user, userError] = await trycatch(
-        this.userRepository.findOne(decodedUser.id)
+        this.userRepository.findOneBy({ id: decodedUser.id })
       );
 
       if (!Boolean(user) || userError) {
