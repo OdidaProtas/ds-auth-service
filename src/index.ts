@@ -38,8 +38,7 @@ AppDataSource.initialize()
       );
     });
 
-    // setup express app here
-    // ...
+  
 
     app.get("/", (request: Request, response: Response, next: NextFunction) => {
       response.send({
