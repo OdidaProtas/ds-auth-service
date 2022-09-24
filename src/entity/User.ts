@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
+import { App } from "./App";
 
 @Entity()
 export class User {
@@ -43,4 +50,10 @@ export class User {
     default: Date.now(),
   })
   dateCreated: string;
+
+  @ManyToOne(() => App, (a) => a.users)
+  organization: App;
+
+  @OneToMany(() => App, (app) => app.owner)
+  apps: App[];
 }

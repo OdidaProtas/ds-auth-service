@@ -1,3 +1,4 @@
+import AppsController from "./controller/AppsController";
 import { UserController } from "./controller/UserController";
 
 export const Routes = [
@@ -56,9 +57,39 @@ export const Routes = [
     action: "resendCode",
   },
   {
+    method: "get",
+    route: "/verify-access-token",
+    controller: UserController,
+    action: "verifyAccessToken",
+  },
+  {
+    method: "get",
+    route: "/apps",
+    controller: AppsController,
+    action: "all",
+  },
+  {
+    method: "get",
+    route: "/apps/:id",
+    controller: AppsController,
+    action: "one",
+  },
+  {
+    method: "get",
+    route: "/apps-byslug/:slug",
+    controller: AppsController,
+    action: "bySlug",
+  },
+  {
+    method:"post",
+    route:"/apps",
+    controller:AppsController,
+    action:"save"
+  },
+  {
     method:"get",
-    route:"/verify-access-token",
-    controller:UserController,
-    action:"verifyAccessToken"
+    route:"/apps-owner/:id",
+    controller:AppsController,
+    action:"all"
   }
 ];
