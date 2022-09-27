@@ -67,7 +67,9 @@ export default class AppsController {
   }
 
   async all(request: Request, response: Response, next: NextFunction) {
-    const [data, error] = await trycatch(this.appsRepository.find());
+    const [data, error] = await trycatch(
+      this.appsRepository.find({ where: { isDeactivated: false } })
+    );
     if (error) {
       response.status(404);
       return {

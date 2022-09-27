@@ -21,6 +21,16 @@ export class App {
   @Column({ nullable: true })
   slug: string;
 
+  @Column({
+    default: false,
+  })
+  isDeactivated: boolean;
+
+  @Column({
+    nullable: true,
+  })
+  deactivationDate: string;
+
   @ManyToMany(() => User, (u) => u.apps)
   owner: User;
 
