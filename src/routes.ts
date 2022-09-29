@@ -69,6 +69,18 @@ export const Routes = [
     action: "all",
   },
   {
+    method: "post",
+    route: "/banners",
+    controller: AppsController,
+    action: "saveBanner",
+  },
+  {
+    method: "get",
+    route: "/banners",
+    controller: AppsController,
+    action: "allBanners",
+  },
+  {
     method: "get",
     route: "/apps/:id",
     controller: AppsController,
@@ -81,15 +93,15 @@ export const Routes = [
     action: "bySlug",
   },
   {
-    method:"post",
-    route:"/apps",
-    controller:AppsController,
-    action:"save"
+    method: "post",
+    route: "/apps",
+    controller: AppsController,
+    action: "save",
   },
   {
-    method:"get",
-    route:"/apps-owner/:id",
-    controller:AppsController,
-    action:"all"
-  }
+    method: "get",
+    route: "/apps-owner/:id",
+    controller: AppsController,
+    action: "all",
+  },
 ];

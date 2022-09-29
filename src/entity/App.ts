@@ -5,6 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import Banner from "./apps/Banners";
 import { User } from "./User";
 
 @Entity()
@@ -36,4 +37,7 @@ export class App {
 
   @OneToMany(() => User, (u) => u.organization)
   users: User[];
+
+  @OneToMany(() => Banner, (u) => u.app)
+  banners: Banner[];
 }
