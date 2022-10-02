@@ -1,7 +1,8 @@
 import AppsController from "./controller/AppsController";
 import { UserController } from "./controller/UserController";
+import { profileRoutes } from "./entity/Profile";
 
-export const Routes = [
+const userRoutes = [
   {
     method: "get",
     route: "/users",
@@ -105,3 +106,5 @@ export const Routes = [
     action: "all",
   },
 ];
+
+export const Routes = [...userRoutes, ...profileRoutes];

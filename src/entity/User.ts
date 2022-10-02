@@ -4,8 +4,10 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from "typeorm";
 import { App } from "./App";
+import { Profile } from "./Profile";
 
 @Entity()
 export class User {
@@ -50,6 +52,9 @@ export class User {
     default: Date.now(),
   })
   dateCreated: string;
+
+  @OneToOne(() => Profile, (p) => p.user)
+  profile: Profile;
 
   @ManyToOne(() => App, (a) => a.users)
   organization: App;
