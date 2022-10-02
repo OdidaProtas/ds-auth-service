@@ -94,7 +94,7 @@ export class ProfileController {
 
   async one(request: Request, response: Response, next: NextFunction) {
     const [profiles, profileError] = await trycatch(
-      this.profileRepository.find({ where: { user: request.params.id } })
+      this.profileRepository.find({ where: { user: {id:request.params.id} } })
     );
     if (profileError) {
       response.status(403);
