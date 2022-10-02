@@ -18,20 +18,78 @@ export class Profile {
 
 export class ProfileController {
   private profileRepository = AppDataSource.getRepository(Profile);
+  private userRepository = AppDataSource.getRepository(User);
 
   async save(request: Request, response: Response, next: NextFunction) {
-    const [profile, profileError] = await trycatch(
-      this.profileRepository.save(request.body)
-    );
-    if (profileError) {
+    if (!Boolean(request.params.id)) {
       response.status(403);
       return {
         msg: "An error occured",
-        desc: profileError,
+        desc: "User id has not provided",
       };
     }
 
-    return profile;
+    const [user, userError] = await trycatch(
+      this.userRepository.find(request.params.id)
+    );
+
+    const [existingProfile] = await trycatch(
+      this.profileRepository.findBy({ user })
+    );
+
+    let newProfile: Profile;
+
+    if (!existingProfile) {
+      const [prof] = await trycatch(this.profileRepository.save({ user }));
+      newProfile = prof;
+    } else {
+      newProfile = existingProfile;
+    }
+
+    if (userError) {
+      response.status(403);
+      return {
+        msg: "An error occured",
+        desc: userError,
+      };
+    }
+
+    if (request.body?.lastName) {
+      user.firstName = request.body.firstName;
+    }
+
+    if (request.body?.firstName) {
+      user.firstName = request.body.lastName;
+    }
+
+    if (request.body.imageUrl) {
+      newProfile.imageUrl = request.body.imageUrl;
+    }
+
+    const [updatedUser, updatedUserError] = await trycatch(
+      this.userRepository.save(user)
+    );
+
+    if (updatedUserError) {
+      response.status(403);
+      return {
+        msg: "An error occured",
+        desc: updatedUser,
+      };
+    }
+
+    const [updatedProfile, updatedProfileError] = await trycatch(
+      this.profileRepository.save({ ...newProfile, updatedUser })
+    );
+    if (updatedProfileError) {
+      response.status(403);
+      return {
+        msg: "An error occured",
+        desc: updatedProfileError,
+      };
+    }
+
+    return updatedProfile;
   }
 
   async one(request: Request, response: Response, next: NextFunction) {
@@ -68,7 +126,7 @@ export class ProfileController {
 export const profileRoutes = [
   {
     method: "post",
-    route: "/profiles",
+    route: "/profiles/:id",
     controller: ProfileController,
     action: "save",
   },
